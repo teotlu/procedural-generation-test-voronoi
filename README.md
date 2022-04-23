@@ -1,2 +1,2 @@
-# procedural-generation-test-voronoi
+# procedural-generation-test
 Created with CodeSandbox
