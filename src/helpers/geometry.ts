@@ -21,3 +21,11 @@ export class Bounds {
     this.pointTo = pointTo;
   }
 }
+
+export function getRandomPointInCircle(r: number) {
+  const angle = Math.random() * 2 * Math.PI;
+  return new Vector2D(
+    Math.round(Math.cos(angle) * r),
+    Math.round(Math.sin(angle) * r),
+  );
+}

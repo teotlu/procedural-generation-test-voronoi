@@ -8,6 +8,8 @@
     "build": "parcel build index.html"
   },
   "dependencies": {
+    "alea": "1.0.1",
+    "delaunator": "5.0.0",
     "parcel-bundler": "^1.6.1",
     "phaser": "3.55.2",
     "simplex-noise": "3.0.1"

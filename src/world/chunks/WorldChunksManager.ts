@@ -1,9 +1,12 @@
+import Alea from 'alea';
 import { FractalNoise } from '../../generators/FractalNoise';
 import { Vector2D } from '../../helpers/geometry';
 import { WorldChunk } from './WorldChunk';
 
 export class WorldChunksManager {
   public spawnedChunks: Record<string, WorldChunk> = {};
+
+  private alea: ReturnType<typeof Alea>;
 
   private elevationNoise = new FractalNoise(`${this.seed}_elevation`, {
     octaves: 5,
@@ -20,12 +23,19 @@ export class WorldChunksManager {
     frequency: 0.005,
   });
 
-  constructor(private seed: string, private chunkSize: number) {}
+  constructor(
+    private seed: number,
+    private chunkSize: number,
+    private chunkCellSize: number,
+  ) {
+    this.alea = new Alea(seed);
+  }
 
   public spawnChunk(position: Vector2D): WorldChunk {
     const chunk = new WorldChunk(
       position,
       this.chunkSize,
+      this.chunkCellSize,
       this.elevationNoise,
       this.moistureNoise,
       this.temperatureNoise,
