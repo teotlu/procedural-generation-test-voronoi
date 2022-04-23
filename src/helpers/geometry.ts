@@ -1,3 +1,5 @@
+import { AleaObject, SeedRandom } from '../typings';
+
 export class Vector2D {
   public x: number;
   public y: number;
@@ -22,10 +24,11 @@ export class Bounds {
   }
 }
 
-export function getRandomPointInCircle(r: number) {
-  const angle = Math.random() * 2 * Math.PI;
+export function getRandomPointInCircle(r: number, prng: SeedRandom) {
+  const angle = prng() * 2 * Math.PI;
+  const distance = prng();
   return new Vector2D(
-    Math.round(Math.cos(angle) * r),
-    Math.round(Math.sin(angle) * r),
+    distance * Math.round(Math.cos(angle) * r),
+    distance * Math.round(Math.sin(angle) * r),
   );
 }

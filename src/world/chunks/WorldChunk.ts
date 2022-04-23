@@ -1,6 +1,7 @@
 import { IValueGenerator } from '../../generators/typings';
 import { IWorldPoint } from '../WorldPoint';
 import { Vector2D, getRandomPointInCircle } from '../../helpers/geometry';
+import { SeedRandom } from '../../typings';
 
 export class WorldChunk {
   public points: IWorldPoint[][] = [];
@@ -14,6 +15,7 @@ export class WorldChunk {
     private elevationGenerator: IValueGenerator,
     private moistureGenerator: IValueGenerator,
     private temperatureGenerator: IValueGenerator,
+    private prng: SeedRandom,
   ) {
     this.position = position;
     const shiftX = position.x * this.size;
@@ -21,7 +23,7 @@ export class WorldChunk {
     for (let x = 0; x < this.size; x += this.cellSize) {
       this.points[x] = [];
       for (let y = 0; y < this.size; y += this.cellSize) {
-        const randomPoint = getRandomPointInCircle(this.cellSize / 4);
+        const randomPoint = getRandomPointInCircle(this.cellSize / 4, prng);
         this.sites.push([
           x + randomPoint.x + this.cellSize / 2,
           y + randomPoint.y + this.cellSize / 2,

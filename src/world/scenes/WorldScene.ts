@@ -16,7 +16,7 @@ export class WorldScene extends Phaser.Scene {
   private inputManager?: KeyboardInputManager;
 
   private chunksManager = new WorldChunksManager(
-    200,
+    'seed',
     this.chunkSize,
     this.chunkCellSize,
   );
