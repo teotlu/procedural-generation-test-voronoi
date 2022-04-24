@@ -1,4 +1,4 @@
-import { AleaObject, SeedRandom } from '../typings';
+import { SeedRandom } from '../typings';
 
 export class Vector2D {
   public x: number;
