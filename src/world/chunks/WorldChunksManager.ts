@@ -1,24 +1,23 @@
 import { FractalNoise } from '../../generators/FractalNoise';
 import { Vector2D } from '../../helpers/geometry';
 import { WorldChunk } from './WorldChunk';
-import seedrandom from 'seedrandom';
 
 export class WorldChunksManager {
   public spawnedChunks: Record<string, WorldChunk> = {};
 
   private elevationNoise = new FractalNoise(`${this.seed}_elevation`, {
     octaves: 5,
-    frequency: 0.01,
+    frequency: 0.002,
   });
 
   private temperatureNoise = new FractalNoise(`${this.seed}_temperature`, {
     octaves: 5,
-    frequency: 0.005,
+    frequency: 0.002,
   });
 
   private moistureNoise = new FractalNoise(`${this.seed}_moisture`, {
     octaves: 5,
-    frequency: 0.005,
+    frequency: 0.002,
   });
 
   constructor(
