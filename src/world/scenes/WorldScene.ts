@@ -131,10 +131,10 @@ export class WorldScene extends Phaser.Scene {
     this.graphics.fillStyle(color, 1);
     this.graphics.lineStyle(1, color, 1);
 
-    chunk.sites.forEach((s) => {
-      if (!chunk.isSiteInBounds(s)) return;
-      this.graphics?.fillPoint(chunkShiftX + s[0], chunkShiftY + s[1], 2);
-    });
+    // chunk.sites.forEach((s) => {
+    //   if (!chunk.isSiteInBounds(s)) return;
+    //   this.graphics?.fillPoint(chunkShiftX + s[0], chunkShiftY + s[1], 2);
+    // });
     chunk.voronoi.forEachCell((p, vertices) => {
       if (!chunk.isSiteInBounds(chunk.sites[p])) return;
       this.graphics?.beginPath();
@@ -158,8 +158,10 @@ export class WorldScene extends Phaser.Scene {
         // );
       }
       this.graphics?.closePath();
-      this.graphics?.fillStyle(getPointColor(chunk.sitesToPoints[p]), 1);
+      this.graphics?.fillStyle(getPointColor(chunk.sitesToPoints[p]), 0.8);
       this.graphics?.fillPath();
+      this.graphics?.lineStyle(1, getPointColor(chunk.sitesToPoints[p]), 1);
+      this.graphics?.strokePath();
     });
     // chunk.voronoi.forEachEdge((e, p, q) => {
     //   this.graphics?.lineBetween(
