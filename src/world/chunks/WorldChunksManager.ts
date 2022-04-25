@@ -2,12 +2,9 @@ import { FractalNoise } from '../../generators/FractalNoise';
 import { Vector2D } from '../../helpers/geometry';
 import { WorldChunk } from './WorldChunk';
 import seedrandom from 'seedrandom';
-import { SeedRandom } from '../../typings';
 
 export class WorldChunksManager {
   public spawnedChunks: Record<string, WorldChunk> = {};
-
-  private prng: SeedRandom;
 
   private elevationNoise = new FractalNoise(`${this.seed}_elevation`, {
     octaves: 5,
@@ -28,9 +25,7 @@ export class WorldChunksManager {
     private seed: string,
     private chunkSize: number,
     private chunkCellSize: number,
-  ) {
-    this.prng = seedrandom(seed);
-  }
+  ) {}
 
   public spawnChunk(position: Vector2D): WorldChunk {
     const chunk = new WorldChunk(
@@ -40,7 +35,7 @@ export class WorldChunksManager {
       this.elevationNoise,
       this.moistureNoise,
       this.temperatureNoise,
-      this.prng,
+      this.seed,
     );
     this.spawnedChunks[position.hash] = chunk;
     return chunk;
