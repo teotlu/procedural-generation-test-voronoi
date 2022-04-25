@@ -20,17 +20,15 @@ export class WorldChunksManager {
     frequency: 0.002,
   });
 
-  constructor(
-    private seed: string,
-    private chunkSize: number,
-    private chunkCellSize: number,
-  ) {}
+  private sitesPerChunkSide = 5;
+
+  constructor(private seed: string, private chunkSize: number) {}
 
   public spawnChunk(position: Vector2D): WorldChunk {
     const chunk = new WorldChunk(
       position,
       this.chunkSize,
-      this.chunkCellSize,
+      this.sitesPerChunkSide,
       this.elevationNoise,
       this.moistureNoise,
       this.temperatureNoise,

@@ -1,6 +1,6 @@
-import { IWorldPoint } from './WorldPoint';
+import { Percent } from '../typings';
 
-enum Biomes {
+export enum Biomes {
   DESERT = 'desert',
   SHRUBLAND = 'shrubland',
   TROPICAL_FOREST = 'tropical_forest',
@@ -26,26 +26,28 @@ export const biomeColors: Record<Biomes, number> = {
   [Biomes.CANYON]: 0x6d6552,
 };
 
-export function getPointBiome(point: IWorldPoint) {
-  if (point.elevation > 90) {
-    if (point.temperature < 10) return Biomes.POLAR;
+export function getBiome(
+  elevation: Percent,
+  temperature: Percent,
+  moisture: Percent,
+) {
+  if (elevation > 90) {
+    if (temperature < 10) return Biomes.POLAR;
     return Biomes.MOUNTAINS;
   }
-  if (point.elevation > 20) {
-    if (point.temperature > 90) return Biomes.DESERT;
-    if (point.moisture > 30 && point.temperature > 60) return Biomes.SHRUBLAND;
-    if (point.temperature < 10) return Biomes.POLAR;
-    if (point.moisture > 50 && point.temperature > 60)
-      return Biomes.TROPICAL_FOREST;
-    if (point.moisture > 30 && point.temperature > 30)
-      return Biomes.BOREAL_FOREST;
-    if (point.moisture > 30 && point.temperature < 30) return Biomes.TUNDRA;
+  if (elevation > 20) {
+    if (temperature > 90) return Biomes.DESERT;
+    if (moisture > 30 && temperature > 60) return Biomes.SHRUBLAND;
+    if (temperature < 10) return Biomes.POLAR;
+    if (moisture > 50 && temperature > 60) return Biomes.TROPICAL_FOREST;
+    if (moisture > 30 && temperature > 30) return Biomes.BOREAL_FOREST;
+    if (moisture > 30 && temperature < 30) return Biomes.TUNDRA;
     return Biomes.GRASSLAND;
   }
-  if (point.moisture > 20 && point.elevation < 20) return Biomes.MARINE;
+  if (moisture > 20 && elevation < 20) return Biomes.MARINE;
   return Biomes.CANYON;
 }
 
-export function getPointColor(point: IWorldPoint) {
-  return biomeColors[getPointBiome(point)];
+export function getPointColor(biome: Biomes) {
+  return biomeColors[biome];
 }

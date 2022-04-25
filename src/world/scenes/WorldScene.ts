@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import seedrandom from 'seedrandom';
 import { Vector2D } from '../../helpers/geometry';
 import { getPointColor } from '../biomes';
 import { WorldChunk } from '../chunks/WorldChunk';
@@ -7,7 +8,6 @@ import { KeyboardInputManager } from '../input/KeyboardInputManager';
 
 export class WorldScene extends Phaser.Scene {
   private graphics?: Phaser.GameObjects.Graphics;
-  private chunkCellSize = 20;
   private chunkSize = 100;
 
   private cameraPosition = new Vector2D(0, 0);
@@ -15,11 +15,8 @@ export class WorldScene extends Phaser.Scene {
 
   private inputManager?: KeyboardInputManager;
 
-  private chunksManager = new WorldChunksManager(
-    'seed',
-    this.chunkSize,
-    this.chunkCellSize,
-  );
+  private chunksManager = new WorldChunksManager('seed4', this.chunkSize);
+  private prng = seedrandom('seed');
 
   constructor() {
     super({ key: 'world' });
@@ -120,23 +117,19 @@ export class WorldScene extends Phaser.Scene {
     //     );
     //   }
     // }
-    // this.graphics.fillStyle(0x00ff00, 1);
-    // this.graphics.fillRect(
+    // this.graphics.lineStyle(1, 0x00ff00, 1);
+    // this.graphics.strokeRect(
     //   chunkShiftX + chunk.position.x,
     //   chunkShiftY + chunk.position.y,
     //   this.chunkSize,
     //   this.chunkSize,
     // );
-    const color = 0.5 + (Math.random() / 0.5) * 16777215;
-    this.graphics.fillStyle(color, 1);
-    this.graphics.lineStyle(1, color, 1);
+    // const color = 0.5 + (Math.random() / 0.5) * 16777215;
+    // this.graphics.fillStyle(color, 1);
+    // this.graphics.lineStyle(1, color, 1);
 
-    // chunk.sites.forEach((s) => {
-    //   if (!chunk.isSiteInBounds(s)) return;
-    //   this.graphics?.fillPoint(chunkShiftX + s[0], chunkShiftY + s[1], 2);
-    // });
     chunk.voronoi.forEachCell((p, vertices) => {
-      if (!chunk.isSiteInBounds(chunk.sites[p])) return;
+      if (!chunk.isSiteInBounds(chunk.sites[p].center)) return;
       this.graphics?.beginPath();
       this.graphics?.moveTo(
         chunkShiftX + vertices[0][0],
@@ -148,28 +141,24 @@ export class WorldScene extends Phaser.Scene {
           chunkShiftX + vertice[0],
           chunkShiftY + vertice[1],
         );
-        // const prevVertice = vertices[i - 1];
-        // const vertice = vertices[i];
-        // this.graphics?.lineBetween(
-        //   chunkShiftX + prevVertice[0],
-        //   chunkShiftY + prevVertice[1],
-        //   chunkShiftX + vertice[0],
-        //   chunkShiftY + vertice[1],
-        // );
       }
       this.graphics?.closePath();
-      this.graphics?.fillStyle(getPointColor(chunk.sitesToPoints[p]), 0.8);
+      this.graphics?.fillStyle(
+        getPointColor(chunk.sites[p].biome),
+        this.prng() * 0.1 + 0.7,
+      );
       this.graphics?.fillPath();
-      this.graphics?.lineStyle(1, getPointColor(chunk.sitesToPoints[p]), 1);
+      this.graphics?.lineStyle(
+        1,
+        getPointColor(chunk.sites[p].biome),
+        this.prng() * 0.5,
+      );
       this.graphics?.strokePath();
     });
-    // chunk.voronoi.forEachEdge((e, p, q) => {
-    //   this.graphics?.lineBetween(
-    //     chunkShiftX + p[0],
-    //     chunkShiftY + p[1],
-    //     chunkShiftX + q[0],
-    //     chunkShiftY + q[1],
-    //   );
+
+    // chunk.sites.forEach((s) => {
+    //   if (!chunk.isSiteInBounds(s)) return;
+    //   this.graphics?.fillPoint(chunkShiftX + s[0], chunkShiftY + s[1], 2);
     // });
 
     // chunkTexture.draw(this.graphics);
