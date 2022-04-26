@@ -1,24 +1,32 @@
 import { FractalNoise } from '../../generators/FractalNoise';
+import { PositionFalloff } from '../../generators/PositionFalloff';
 import { Vector2D } from '../../helpers/geometry';
 import { WorldChunk } from './WorldChunk';
 
 export class WorldChunksManager {
   public spawnedChunks: Record<string, WorldChunk> = {};
 
-  private elevationNoise = new FractalNoise(`${this.seed}_elevation`, {
+  private elevationGenerator = new FractalNoise(`${this.seed}_elevation`, {
+    octaves: 5,
+    frequency: 0.001,
+  });
+
+  private moistureGenerator = new FractalNoise(`${this.seed}_moisture`, {
     octaves: 5,
     frequency: 0.002,
   });
 
-  private temperatureNoise = new FractalNoise(`${this.seed}_temperature`, {
+  private temperatureGenerator = new FractalNoise(`${this.seed}_temperature`, {
     octaves: 5,
     frequency: 0.002,
   });
 
-  private moistureNoise = new FractalNoise(`${this.seed}_moisture`, {
-    octaves: 5,
-    frequency: 0.002,
-  });
+  // private temperatureGenerator = new PositionFalloff(
+  //   `${this.seed}_temperature`,
+  //   {
+  //     falloff: 10,
+  //   },
+  // );
 
   private sitesPerChunkSide = 5;
 
@@ -29,9 +37,9 @@ export class WorldChunksManager {
       position,
       this.chunkSize,
       this.sitesPerChunkSide,
-      this.elevationNoise,
-      this.moistureNoise,
-      this.temperatureNoise,
+      this.elevationGenerator,
+      this.moistureGenerator,
+      this.temperatureGenerator,
       this.seed,
     );
     this.spawnedChunks[position.hash] = chunk;

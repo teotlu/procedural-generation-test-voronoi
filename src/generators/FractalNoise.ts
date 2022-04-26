@@ -2,8 +2,8 @@ import SimplexNoise from 'simplex-noise';
 import { IValueGenerator } from './typings';
 
 export type FractalNoiseConfig = {
-  minValue?: number;
-  maxValue?: number;
+  min?: number;
+  max?: number;
   amplitude?: number;
   frequency?: number;
   octaves?: number;
@@ -12,9 +12,9 @@ export type FractalNoiseConfig = {
 };
 
 export class FractalNoise implements IValueGenerator {
-  private config = {
-    minValue: 0,
-    maxValue: 100,
+  protected config = {
+    min: 0,
+    max: 100,
     amplitude: 50,
     frequency: 0.01,
     octaves: 3,
@@ -39,8 +39,8 @@ export class FractalNoise implements IValueGenerator {
       octaves,
       lacunarity,
       percistence,
-      minValue,
-      maxValue,
+      min,
+      max,
     } = this.config;
 
     let value = amplitude;
@@ -54,7 +54,7 @@ export class FractalNoise implements IValueGenerator {
 
       tFrequency *= lacunarity;
       tAmplitude *= percistence;
-      value = Math.min(Math.max(Math.floor(value), minValue), maxValue);
+      value = Math.min(Math.max(Math.floor(value), min), max);
     }
 
     return value;

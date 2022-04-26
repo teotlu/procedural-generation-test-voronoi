@@ -3,7 +3,7 @@ import { IWorldSite } from '../WorldSite';
 import { Vector2D, getRandomPointInCircle } from '../../helpers/geometry';
 import { Voronoi } from './Voronoi';
 import seedrandom from 'seedrandom';
-import { getBiome, getPointBiome } from '../biomes';
+import { getBiome } from '../biomes';
 
 export class WorldChunk {
   public sites: IWorldSite[] = [];
@@ -40,18 +40,20 @@ export class WorldChunk {
       ) {
         const prng = seedrandom(`${seed}_${shiftX + x}_${shiftY + y}`);
         const randomPoint = getRandomPointInCircle(this.cellSize / 2, prng);
+        const siteX = x + randomPoint.x + this.cellSize / 2;
+        const siteY = y + randomPoint.y + this.cellSize / 2;
 
         const elevation = this.elevationGenerator.getValue(
-          x + shiftX,
-          y + shiftY,
+          siteX + shiftX,
+          siteY + shiftY,
         );
         const moisture = this.moistureGenerator.getValue(
-          x + shiftX,
-          y + shiftY,
+          siteX + shiftX,
+          siteY + shiftY,
         );
         const temperature = this.temperatureGenerator.getValue(
-          x + shiftX,
-          y + shiftY,
+          siteX + shiftX,
+          siteY + shiftY,
         );
 
         const site = {
@@ -59,10 +61,7 @@ export class WorldChunk {
           moisture,
           temperature,
           biome: getBiome(elevation, moisture, temperature),
-          center: [
-            x + randomPoint.x + this.cellSize / 2,
-            y + randomPoint.y + this.cellSize / 2,
-          ],
+          center: [siteX, siteY],
         };
 
         this.sites.push(site);

@@ -98,6 +98,7 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private drawChunk(chunk: WorldChunk) {
+    // TODO World renderer
     if (!this.graphics) return;
     const chunkShiftX = (chunk.position.x - 0.5) * this.chunkSize;
     const chunkShiftY = (chunk.position.y - 0.5) * this.chunkSize;
@@ -148,12 +149,12 @@ export class WorldScene extends Phaser.Scene {
         this.prng() * 0.1 + 0.7,
       );
       this.graphics?.fillPath();
-      this.graphics?.lineStyle(
-        1,
-        getPointColor(chunk.sites[p].biome),
-        this.prng() * 0.5,
-      );
-      this.graphics?.strokePath();
+      // this.graphics?.lineStyle(
+      //   1,
+      //   getPointColor(chunk.sites[p].biome),
+      //   this.prng() * 0.2,
+      // );
+      // this.graphics?.strokePath();
     });
 
     // chunk.sites.forEach((s) => {
