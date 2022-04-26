@@ -39,7 +39,7 @@ export class WorldChunk {
         y += this.cellSize
       ) {
         const prng = seedrandom(`${seed}_${shiftX + x}_${shiftY + y}`);
-        const randomPoint = getRandomPointInCircle(this.cellSize / 2, prng);
+        const randomPoint = getRandomPointInCircle(this.cellSize, prng);
         const siteX = x + randomPoint.x + this.cellSize / 2;
         const siteY = y + randomPoint.y + this.cellSize / 2;
 

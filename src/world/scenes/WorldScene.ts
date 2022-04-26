@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
-import seedrandom from 'seedrandom';
 import { Vector2D } from '../../helpers/geometry';
+import { Limits } from '../../helpers/limits';
 import { getPointColor } from '../biomes';
 import { WorldChunk } from '../chunks/WorldChunk';
 import { WorldChunksManager } from '../chunks/WorldChunksManager';
@@ -9,14 +9,16 @@ import { KeyboardInputManager } from '../input/KeyboardInputManager';
 export class WorldScene extends Phaser.Scene {
   private graphics?: Phaser.GameObjects.Graphics;
   private chunkSize = 100;
+  private reservedChunks = 1;
 
   private cameraPosition = new Vector2D(0, 0);
-  private cameraVelocity = 3;
+  private cameraZoom = 1;
+  private cameraZoomLimits = new Limits(0.5, 5);
+  private cameraVelocity = 5;
 
   private inputManager?: KeyboardInputManager;
 
   private chunksManager = new WorldChunksManager('seed4', this.chunkSize);
-  private prng = seedrandom('seed');
 
   constructor() {
     super({ key: 'world' });
@@ -29,70 +31,110 @@ export class WorldScene extends Phaser.Scene {
 
   create() {
     this.cameras.main.centerOn(this.cameraPosition.x, this.cameraPosition.y);
-    this.cameras.main.setZoom(1);
     this.updateVisibleChunks();
   }
 
   update() {
-    this.updatePlayerPosition();
+    this.applyInput();
 
     this.updateVisibleChunks();
     this.cameras.main.centerOn(this.cameraPosition.x, this.cameraPosition.y);
+    this.cameras.main.setZoom(this.cameraZoom);
   }
 
   private updateVisibleChunks() {
-    const chunkPosition = this.getChunkPosition();
-    if (!!this.chunksManager.spawnedChunks[chunkPosition.hash]) return;
-    // console.log(
-    //   `spawn chunk with position ${chunkPosition.x},${chunkPosition.y}`,
-    // );
-    const chunk = this.chunksManager.spawnChunk(chunkPosition);
-    // console.log(
-    //   `draw chunk at position ${chunk.position.x},${chunk.position.y}`,
-    // );
-    this.drawChunk(chunk);
+    const chunkPositions = this.getVisibleChunkPositions();
+
+    chunkPositions.forEach((p) => {
+      if (!!this.chunksManager.spawnedChunks[p.hash]) return;
+      // console.log(`spawn chunk with position ${p.x},${p.y}`);
+      const chunk = this.chunksManager.spawnChunk(p);
+      // console.log(`draw chunk at position ${p.x},${p.y}`);
+      this.drawChunk(chunk);
+    });
   }
 
-  private getChunkPosition() {
+  private getVisibleChunkPositions(): Vector2D[] {
+    const centerPosition = new Vector2D(
+      Math.floor(this.cameraPosition.x / this.chunkSize + 0.5),
+      Math.floor(this.cameraPosition.y / this.chunkSize + 0.5),
+    );
+    const chunksCountInViewport = this.chunksCountInViewport;
+    const halfOfChunksInViewPort = new Vector2D(
+      Math.floor(chunksCountInViewport.x / 2),
+      Math.floor(chunksCountInViewport.y / 2),
+    );
+    const positions = [];
+    for (let x = 0; x < chunksCountInViewport.x; x++) {
+      for (let y = 0; y < chunksCountInViewport.y; y++) {
+        positions.push(
+          new Vector2D(
+            centerPosition.x - halfOfChunksInViewPort.x + x,
+            centerPosition.y - halfOfChunksInViewPort.y + y,
+          ),
+        );
+      }
+    }
+    return positions;
+  }
+
+  get chunksCountInViewport() {
+    const viewportWidth = this.cameras.main.width / this.cameras.main.zoom;
+    const viewportHeight = this.cameras.main.height / this.cameras.main.zoom;
     return new Vector2D(
-      Math.floor(
-        (this.cameraPosition.x + 0.5 * this.chunkSize) / this.chunkSize,
-      ),
-      Math.floor(
-        (this.cameraPosition.y + 0.5 * this.chunkSize) / this.chunkSize,
-      ),
+      viewportWidth / this.chunkSize + this.reservedChunks * 2,
+      viewportHeight / this.chunkSize + this.reservedChunks * 2,
     );
   }
 
-  private updatePlayerPosition() {
+  private applyInput() {
     if (!this.inputManager) return;
-    const { up, down, left, right } = this.inputManager.keyBinds;
+    const {
+      up,
+      down,
+      left,
+      right,
+      zoomIn,
+      zoomOut,
+    } = this.inputManager.keyBinds;
 
     if (up.isDown) {
       this.cameraPosition = new Vector2D(
         this.cameraPosition.x,
-        this.cameraPosition.y - this.cameraVelocity,
+        this.cameraPosition.y - this.cameraVelocity / this.cameraZoom,
       );
     }
 
     if (down.isDown) {
       this.cameraPosition = new Vector2D(
         this.cameraPosition.x,
-        this.cameraPosition.y + this.cameraVelocity,
+        this.cameraPosition.y + this.cameraVelocity / this.cameraZoom,
       );
     }
 
     if (left.isDown) {
       this.cameraPosition = new Vector2D(
-        this.cameraPosition.x - this.cameraVelocity,
+        this.cameraPosition.x - this.cameraVelocity / this.cameraZoom,
         this.cameraPosition.y,
       );
     }
 
     if (right.isDown) {
       this.cameraPosition = new Vector2D(
-        this.cameraPosition.x + this.cameraVelocity,
+        this.cameraPosition.x + this.cameraVelocity / this.cameraZoom,
         this.cameraPosition.y,
+      );
+    }
+
+    if (zoomIn.isDown) {
+      this.cameraZoom = this.cameraZoomLimits.getLimitedValue(
+        this.cameraZoom * 1.05,
+      );
+    }
+
+    if (zoomOut.isDown) {
+      this.cameraZoom = this.cameraZoomLimits.getLimitedValue(
+        this.cameraZoom / 1.05,
       );
     }
   }
@@ -144,17 +186,10 @@ export class WorldScene extends Phaser.Scene {
         );
       }
       this.graphics?.closePath();
-      this.graphics?.fillStyle(
-        getPointColor(chunk.sites[p].biome),
-        this.prng() * 0.1 + 0.7,
-      );
+      this.graphics?.fillStyle(getPointColor(chunk.sites[p].biome), 0.8);
       this.graphics?.fillPath();
-      // this.graphics?.lineStyle(
-      //   1,
-      //   getPointColor(chunk.sites[p].biome),
-      //   this.prng() * 0.2,
-      // );
-      // this.graphics?.strokePath();
+      this.graphics?.lineStyle(1, getPointColor(chunk.sites[p].biome), 0.4);
+      this.graphics?.strokePath();
     });
 
     // chunk.sites.forEach((s) => {

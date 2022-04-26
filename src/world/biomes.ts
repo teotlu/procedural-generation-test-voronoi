@@ -28,11 +28,12 @@ export const biomeColors: Record<Biomes, number> = {
 
 export function getBiome(
   elevation: Percent,
-  temperature: Percent,
   moisture: Percent,
+  temperature: Percent,
 ) {
+  // TODO Balanced biome rules
+  if (temperature < 10) return Biomes.POLAR;
   if (elevation > 90) {
-    if (temperature < 10) return Biomes.POLAR;
     return Biomes.MOUNTAINS;
   }
   if (elevation > 20) {
