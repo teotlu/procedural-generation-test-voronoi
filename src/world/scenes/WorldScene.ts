@@ -43,7 +43,7 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private updateVisibleChunks() {
-    const chunkPositions = this.getVisibleChunkPositions();
+    const chunkPositions = this.visibleChunkPositions;
 
     chunkPositions.forEach((p) => {
       if (!!this.chunksManager.spawnedChunks[p.hash]) return;
@@ -52,9 +52,19 @@ export class WorldScene extends Phaser.Scene {
       // console.log(`draw chunk at position ${p.x},${p.y}`);
       this.drawChunk(chunk);
     });
+
+    Object.values(this.chunksManager.spawnedChunks).forEach((c) => {
+      if (!chunkPositions.some((p) => p.hash === c.position.hash)) {
+        this.chunksManager.removeChunk(c.position);
+      }
+    });
+
+    // console.log(
+    //   `chunks count: ${Object.values(this.chunksManager.spawnedChunks).length}`,
+    // );
   }
 
-  private getVisibleChunkPositions(): Vector2D[] {
+  private get visibleChunkPositions(): Vector2D[] {
     const centerPosition = new Vector2D(
       Math.floor(this.cameraPosition.x / this.chunkSize + 0.5),
       Math.floor(this.cameraPosition.y / this.chunkSize + 0.5),
@@ -142,34 +152,15 @@ export class WorldScene extends Phaser.Scene {
   private drawChunk(chunk: WorldChunk) {
     // TODO World renderer
     if (!this.graphics) return;
+    // this.graphics.clear();
     const chunkShiftX = (chunk.position.x - 0.5) * this.chunkSize;
     const chunkShiftY = (chunk.position.y - 0.5) * this.chunkSize;
     // const chunkTexture = this.add.renderTexture(
-    //   chunkShiftX,
-    //   chunkShiftY,
+    //   0,
+    //   0,
     //   this.chunkSize,
     //   this.chunkSize,
     // );
-    // for (let x = 0; x < this.chunkSize; x += this.chunkCellSize) {
-    //   for (let y = 0; y < this.chunkSize; y += this.chunkCellSize) {
-    //     this.graphics.fillStyle(getPointColor(chunk.points[x][y]), 1);
-    //     this.graphics.fillPoint(
-    //       chunkShiftX + x + this.chunkCellSize / 2,
-    //       chunkShiftY + y + this.chunkCellSize / 2,
-    //       this.chunkCellSize,
-    //     );
-    //   }
-    // }
-    // this.graphics.lineStyle(1, 0x00ff00, 1);
-    // this.graphics.strokeRect(
-    //   chunkShiftX + chunk.position.x,
-    //   chunkShiftY + chunk.position.y,
-    //   this.chunkSize,
-    //   this.chunkSize,
-    // );
-    // const color = 0.5 + (Math.random() / 0.5) * 16777215;
-    // this.graphics.fillStyle(color, 1);
-    // this.graphics.lineStyle(1, color, 1);
 
     chunk.voronoi.forEachCell((p, vertices) => {
       if (!chunk.isSiteInBounds(chunk.sites[p].center)) return;
@@ -193,8 +184,12 @@ export class WorldScene extends Phaser.Scene {
     });
 
     // chunk.sites.forEach((s) => {
-    //   if (!chunk.isSiteInBounds(s)) return;
-    //   this.graphics?.fillPoint(chunkShiftX + s[0], chunkShiftY + s[1], 2);
+    //   if (!chunk.isSiteInBounds(s.center)) return;
+    //   this.graphics?.fillPoint(
+    //     chunkShiftX + s.center[0],
+    //     chunkShiftY + s.center[1],
+    //     2,
+    //   );
     // });
 
     // chunkTexture.draw(this.graphics);
