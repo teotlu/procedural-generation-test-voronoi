@@ -11,10 +11,12 @@ export class WorldScene extends Phaser.Scene {
   private chunkSize = 100;
   private reservedChunks = 1;
 
+  private chunkTextures: Record<string, Phaser.GameObjects.RenderTexture> = {};
+
   private cameraPosition = new Vector2D(0, 0);
   private cameraZoom = 1;
   private cameraZoomLimits = new Limits(0.5, 5);
-  private cameraVelocity = 5;
+  private cameraVelocity = 3;
 
   private inputManager?: KeyboardInputManager;
 
@@ -25,7 +27,7 @@ export class WorldScene extends Phaser.Scene {
   }
 
   preload() {
-    this.graphics = this.add.graphics(); //.setVisible(false);
+    this.graphics = this.add.graphics().setVisible(false);
     this.inputManager = new KeyboardInputManager(this.input.keyboard);
   }
 
@@ -56,6 +58,7 @@ export class WorldScene extends Phaser.Scene {
     Object.values(this.chunksManager.spawnedChunks).forEach((c) => {
       if (!chunkPositions.some((p) => p.hash === c.position.hash)) {
         this.chunksManager.removeChunk(c.position);
+        this.undrawChunk(c);
       }
     });
 
@@ -152,28 +155,29 @@ export class WorldScene extends Phaser.Scene {
   private drawChunk(chunk: WorldChunk) {
     // TODO World renderer
     if (!this.graphics) return;
-    // this.graphics.clear();
+    this.graphics.clear();
     const chunkShiftX = (chunk.position.x - 0.5) * this.chunkSize;
     const chunkShiftY = (chunk.position.y - 0.5) * this.chunkSize;
-    // const chunkTexture = this.add.renderTexture(
-    //   0,
-    //   0,
-    //   this.chunkSize,
-    //   this.chunkSize,
-    // );
+
+    this.chunkTextures[chunk.position.hash] = this.add.renderTexture(
+      chunkShiftX - this.chunkSize / 2,
+      chunkShiftY - this.chunkSize / 2,
+      2 * this.chunkSize,
+      2 * this.chunkSize,
+    );
 
     chunk.voronoi.forEachCell((p, vertices) => {
       if (!chunk.isSiteInBounds(chunk.sites[p].center)) return;
       this.graphics?.beginPath();
       this.graphics?.moveTo(
-        chunkShiftX + vertices[0][0],
-        chunkShiftY + vertices[0][1],
+        this.chunkSize / 2 + vertices[0][0],
+        this.chunkSize / 2 + vertices[0][1],
       );
       for (let i = 1; i < vertices.length; i++) {
         const vertice = vertices[i];
         this.graphics?.lineTo(
-          chunkShiftX + vertice[0],
-          chunkShiftY + vertice[1],
+          this.chunkSize / 2 + vertice[0],
+          this.chunkSize / 2 + vertice[1],
         );
       }
       this.graphics?.closePath();
@@ -192,6 +196,10 @@ export class WorldScene extends Phaser.Scene {
     //   );
     // });
 
-    // chunkTexture.draw(this.graphics);
+    this.chunkTextures[chunk.position.hash].draw(this.graphics);
+  }
+
+  private undrawChunk(chunk: WorldChunk) {
+    this.chunkTextures[chunk.position.hash]?.destroy();
   }
 }
