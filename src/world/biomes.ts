@@ -52,3 +52,11 @@ export function getBiome(
 export function getPointColor(biome: Biomes) {
   return biomeColors[biome];
 }
+
+export function getBiomeElevation(biome: Biomes, elevation: number) {
+  if (biome === Biomes.MARINE) {
+    return 0;
+  }
+
+  return elevation;
+}

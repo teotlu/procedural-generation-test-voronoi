@@ -6,6 +6,10 @@ import { WorldChunk } from './WorldChunk';
 export class WorldChunksManager {
   public spawnedChunks: Record<string, WorldChunk> = {};
 
+  public get spawnedChunksList() {
+    return Object.values(this.spawnedChunks);
+  }
+
   // Default noises
 
   private elevationNoise = new FractalNoise(`${this.seed}_elevation`, {
@@ -58,7 +62,7 @@ export class WorldChunksManager {
     return this.temperatureNoise.getValue(x, y);
   });
 
-  private sitesPerChunkSide = 5;
+  private sitesPerChunkSide = 8;
 
   constructor(private seed: string, private chunkSize: number) {}
 

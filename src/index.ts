@@ -2,8 +2,8 @@ import './styles.css';
 import Phaser from 'phaser';
 import { WorldScene } from './world/scenes/WorldScene';
 
-const WIDTH = 500;
-const HEIGHT = 500;
+const WIDTH = window.innerWidth;
+const HEIGHT = window.innerHeight;
 
 class Game {
   game: Phaser.Game;

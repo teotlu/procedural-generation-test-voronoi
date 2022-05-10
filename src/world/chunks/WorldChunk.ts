@@ -3,7 +3,7 @@ import { IWorldSite } from '../WorldSite';
 import { Vector2D, getRandomPointInCircle } from '../../helpers/geometry';
 import { Voronoi } from './Voronoi';
 import seedrandom from 'seedrandom';
-import { getBiome } from '../biomes';
+import { getBiome, getBiomeElevation } from '../biomes';
 
 export class WorldChunk {
   public sites: IWorldSite[] = [];
@@ -56,11 +56,13 @@ export class WorldChunk {
           siteY + shiftY,
         );
 
+        const biome = getBiome(elevation, moisture, temperature);
+
         const site = {
-          elevation,
+          elevation: getBiomeElevation(biome, elevation),
           moisture,
           temperature,
-          biome: getBiome(elevation, moisture, temperature),
+          biome,
           center: [siteX, siteY],
         };
 
@@ -68,6 +70,16 @@ export class WorldChunk {
       }
     }
     this.voronoi = new Voronoi(this.siteCenters);
+
+    // this.voronoi.forEachEdge((e, p, q) => {
+    //   if (
+    //     this.isSiteInBounds(this.sites[e].center) &&
+    //     moistureGenerator.getValue(p[0], p[1]) > 90 &&
+    //     moistureGenerator.getValue(q[0], q[1]) > 90
+    //   ) {
+    //     console.log(`river from ${p[0]},${p[1]} to ${q[0]},${q[1]}`);
+    //   }
+    // });
   }
 
   isSiteInBounds(site: number[]) {
